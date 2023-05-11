@@ -1,6 +1,8 @@
 const LIMIT = 10000;
-
-const expenses = [];
+const CURRENSY = 'руб';
+const STATUS_IN_LIMIT = 'Все хорошо';
+const STATUS_OUT_OF_LIMIT = 'Все плохо';
+const STATUS_OUT_OF_LIMIT_CLASS_NAME = 'status-red';
 
 const inputNode = document.querySelector('.js-expense-input');
 const buttonNode = document.querySelector('.js-expense-button');
@@ -9,53 +11,86 @@ const sumNode = document.querySelector('.js-sum');
 const limitNode = document.querySelector('.js-limit');
 const statusNode = document.querySelector('.js-status');
 
-limitNode.innerText = LIMIT;
+const expenses = [];
 
-// const expenses = [] - пример массива ([] - массив)
-// expenses.push() - вносить данные которые на нужны в массиве
+initApp(expenses);
+
 
 buttonNode.addEventListener('click', function() {
+    const expense = getExpensFromUser();
 
-    // 1. Получаем значение из поля ввода
-
-    if (!inputNode.value) { // знак ! говорит нам что в этой переменной нечего нету 
-        return; // ретурн возвращает нас обратно если выполнить условия if
+    if (!expense) {
+        return;
     }
 
-    const expense = parseInt (inputNode.value); // parseInt() - позволяет переводить строки в целые числа
+    trackExpens(expense);
 
-    inputNode.value = ''; // обнуляет строку послее ввода в инпуте и нажатии кнопки 
+    render(expenses);
+});
 
-    // 2. Сохраняем трату в список
+function initApp(expenses) {
+    limitNode.innerText = LIMIT;
+    statusNode.innerText = STATUS_IN_LIMIT;
+    sumNode.innerText = calculateExpanses(expenses);
+}
 
+function trackExpens(expense) {
     expenses.push(expense);
+}
 
-    // 3. Выводим новый список трат
+function getExpensFromUser() {
+    if (!inputNode.value) { 
+        return null; 
+    }
 
-    let expensesListHTML = '';
+    const expense = parseInt (inputNode.value);
 
-    expenses.forEach(element => { // forEach - новый оператор циклов
-        expensesListHTML +=`<li>${element} руб</li>`;
-    });
+    clearInput();  
 
-    historyNode.innerHTML = `<ol>${expensesListHTML}</ol>`;
+    return expense;
+}
 
-    // 4. Посчитать сумму и вывести ее
+function clearInput () {
+    inputNode.value = '';
+}
 
+function calculateExpanses(expenses) {
     let sum = 0;
 
     expenses.forEach(element => {
         sum += element;
     });
 
+    return sum;
+}
+
+function render(expenses) {
+    const sum = calculateExpanses(expenses);
+
+    renderHistory(expenses);
+    renderSum(sum);
+    renderStatus(sum);
+}
+
+function renderHistory(expenses) {
+    let expensesListHTML = '';
+
+    expenses.forEach(element => { 
+        expensesListHTML +=`<li>${element} ${CURRENSY}</li>`;
+    });
+
+    historyNode.innerHTML = `<ol>${expensesListHTML}</ol>`;
+}
+
+function renderSum(sum) {
     sumNode.innerText = sum;
+}
 
-    // 5. Сравнение с лимитом и вывод статуса 
-
+function renderStatus (sum) {
     if (sum <= LIMIT) {
-        statusNode.innerText ='Все хорошо';
+        statusNode.innerText = STATUS_IN_LIMIT;
     } else {
-        statusNode.innerText ='Все плохо';
-        statusNode.classList.add('status-red'); // classList.add - добовляет класс из css
+        statusNode.innerText = STATUS_OUT_OF_LIMIT;
+        statusNode.classList.add(STATUS_OUT_OF_LIMIT_CLASS_NAME);
     }
-});
+}
