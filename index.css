@@ -4,4 +4,11 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
+.status {
+    color: green;
+}
+
+.status-red {
+    color: red;
+}
 
